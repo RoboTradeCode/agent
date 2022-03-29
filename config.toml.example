@@ -1,0 +1,16 @@
+[agent]
+name = "ftx"
+instance = "1"
+
+[configurator]
+url = "http://88.55.15.45/api"
+update_seconds = 10
+
+[aeron]
+
+[aeron.subscribers]
+logs = { channel = "aeron:ipc", stream_id = 1002 }
+
+[aeron.publishers]
+config = { channel = "aeron:ipc", stream_id = 1003 }
+logs = { channel = "aeron:udp?endpoint=3.66.183.27:44444", stream_id = 1001 }
