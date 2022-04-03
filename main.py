@@ -35,19 +35,17 @@ class Agent:
             self.logs_handler,
             config["aeron"]["subscribers"]["logs"]["channel"],
             config["aeron"]["subscribers"]["logs"]["stream_id"],
-            10,
-            self,
+            config["aeron"]["subscribers"]["logs"]["fragments_limit"],
         )
 
-    @staticmethod
-    def logs_handler(clientd: "Agent", message: str) -> None:
-        clientd.logs_publisher.offer(message)
+    def logs_handler(self, message: str) -> None:
+        self.logs_publisher.offer(message)
 
-    def distribute_config(self):
+    def distribute_config(self) -> None:
         content = self.session.get(self.endpoint).text
         self.config_publisher.offer(content)
 
-    def poll(self):
+    def poll(self) -> None:
         self.logs_subscriber.poll()
 
 

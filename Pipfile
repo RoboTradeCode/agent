@@ -11,4 +11,6 @@ requests = "*"
 [dev-packages]
 
 [requires]
-python_version = "3.10"
+
+[packages.aeron]
+git = "https://github.com/RoboTradeCode/aeron-python.git"
