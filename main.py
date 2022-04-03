@@ -1,58 +1,70 @@
-"""
-Агент
-"""
-
-from time import sleep
-import schedule
 import tomli
+from aeron import Subscriber, Publisher
+from time import sleep
 from requests import Session
 from requests.adapters import HTTPAdapter
+import schedule
 
-CONFIG_PATH = 'config.toml'  # Путь к файлу конфигурации
-MAX_RETRIES = 5              # Максимальное количество попыток сделать запрос
-
-
-def job(s: Session, url: str, params: dict) -> None:
-    """
-    Получает от конфигуратора настройки и отправляет их в канал Aeron
-
-    :param s:      Сессия
-    :param url:    Конечная точка API конфигуратора
-    :param params: Параметры запроса
-    """
-    config = s.get(url, params).json()
-    print(config)
-    # TODO: publisher.offer(config)
+CONFIG_PATH = "config.toml"
+MAX_RETRIES = 5
 
 
-def logs_handler(message: str) -> None:
-    """
-    Ретранслирует логи, поступающие в канал Aeron
+class Agent:
+    session: Session
+    endpoint: str
+    config_publisher: Publisher
+    logs_subscriber: Subscriber
+    logs_publisher: Publisher
 
-    :param message: Логи
-    """
-    print(message)
-    # TODO: publisher.offer()
+    def __init__(self, config: dict):
+        self.session = Session()
+        self.endpoint = config["configurator"]["url"]
+        self.session.mount(self.endpoint, HTTPAdapter(max_retries=MAX_RETRIES))
+
+        self.config_publisher = Publisher(
+            config["aeron"]["publishers"]["config"]["channel"],
+            config["aeron"]["publishers"]["config"]["stream_id"],
+        )
+
+        self.logs_publisher = Publisher(
+            config["aeron"]["publishers"]["logs"]["channel"],
+            config["aeron"]["publishers"]["logs"]["stream_id"],
+        )
+
+        self.logs_subscriber = Subscriber(
+            self.logs_handler,
+            config["aeron"]["subscribers"]["logs"]["channel"],
+            config["aeron"]["subscribers"]["logs"]["stream_id"],
+            10,
+            self,
+        )
+
+    @staticmethod
+    def logs_handler(clientd: "Agent", message: str) -> None:
+        clientd.logs_publisher.offer(message)
+
+    def distribute_config(self):
+        content = self.session.get(self.endpoint).text
+        self.config_publisher.offer(content)
+
+    def poll(self):
+        self.logs_subscriber.poll()
 
 
 def main() -> None:
-    # Чтение конфигурации в формате TOML
-    with open(CONFIG_PATH, 'rb') as f:
+    with open(CONFIG_PATH, "rb") as f:
         toml_dict = tomli.load(f)
 
-    # Создание сессии для запроса
-    s = Session()
-    s.mount(toml_dict['url'], HTTPAdapter(max_retries=MAX_RETRIES))
-
-    # Планирование задачи
-    request_params = {'agent.name': toml_dict['agent']['name'], 'agent.instance': toml_dict['agent']['instance']}
-    job_args = {'s': s, 'url': toml_dict['url'], 'params': request_params}
-    schedule.every(toml_dict['configurator']['update_seconds']).seconds.do(job, job_args)
+    agent = Agent(toml_dict)
+    schedule.every(toml_dict["configurator"]["update_seconds"]).seconds.do(
+        lambda: agent.distribute_config()
+    )
 
     while True:
         schedule.run_pending()
+        agent.poll()
         sleep(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
