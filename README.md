@@ -8,6 +8,9 @@
 [![Linux](https://img.shields.io/badge/platform-linux-lightgrey)](https://ru.wikipedia.org/wiki/Linux)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
+Торговый агент. Периодически получает конфигурацию от конфигуратора и публикует её в канал Aeron. Также ретранслирует
+логи.
+
 ## Установка зависимостей
 
 ```shell
@@ -20,11 +23,11 @@ pipenv install
 pipenv run python main.py
 ```
 
-### Конфигурация сервиса
+### Пример конфигурации в качестве сервиса systemd
 
 ```
 [Unit]
-Description=Agent
+Description=Trade Agent
 After=network.target
 
 [Service]
