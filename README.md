@@ -50,6 +50,8 @@ pipenv run python main.py
 | aeron.subscribers.logs  | Inline Table | Параметры канала Aeron для приёма логов            |
 | aeron.publishers.config | Inline Table | Параметры канала Aeron для публикации конфигурации |
 | aeron.publishers.logs   | Inline Table | Параметры канала Aeron для публикации логов        |
+Ad
+> Параметры каналов Aeron подробнее описаны в репозитории [aeron-python](https://github.com/RoboTradeCode/aeron-python)
 
 ### Пример конфигурации сервиса
 
