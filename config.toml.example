@@ -1,12 +1,22 @@
 [configurator]
-url = "http://3.68.58.96:8000/binance/1"
+
+# URL для подключения к конфигуратору
+url = "https://configurator.robotrade.io/binance/1"
+
+# Периодичность получения конфигурации в секундах
 update_seconds = 10
 
 [aeron]
 
 [aeron.subscribers]
+
+# Параметры канала Aeron для приёма логов
 logs = { channel = "aeron:ipc", stream_id = 1002, fragments_limit = 10 }
 
 [aeron.publishers]
+
+# Параметры канала Aeron для публикации конфигурации
 config = { channel = "aeron:ipc", stream_id = 1003 }
+
+# Параметры канала Aeron для публикации логов
 logs = { channel = "aeron:ipc", stream_id = 1004 }
