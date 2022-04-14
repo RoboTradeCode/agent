@@ -1,6 +1,7 @@
 from time import sleep
 import schedule
 import tomli
+import json
 from aeron import Subscriber, Publisher
 from requests import Session
 from requests.adapters import HTTPAdapter
@@ -17,6 +18,7 @@ class Agent:
 
     session: Session  # Сессия для подключения к конфигуратору
     endpoint: str  # URL конфигуратора
+    config_subscriber: Subscriber
     config_publisher: Publisher
     logs_subscriber: Subscriber
     logs_publisher: Publisher
@@ -30,16 +32,18 @@ class Agent:
         self.endpoint = config["configurator"]["url"]
         self.session.mount(self.endpoint, HTTPAdapter(max_retries=MAX_RETRIES))
 
+        # Инициализация канала для получения запросов на конфигурацию
+        self.config_subscriber = Subscriber(
+            self.config_handler,
+            config["aeron"]["subscribers"]["config"]["channel"],
+            config["aeron"]["subscribers"]["config"]["stream_id"],
+            config["aeron"]["subscribers"]["config"]["fragments_limit"],
+        )
+
         # Инициализация канала для публикации конфигураций
         self.config_publisher = Publisher(
             config["aeron"]["publishers"]["config"]["channel"],
             config["aeron"]["publishers"]["config"]["stream_id"],
-        )
-
-        # Инициализация канала для получения логов
-        self.logs_publisher = Publisher(
-            config["aeron"]["publishers"]["logs"]["channel"],
-            config["aeron"]["publishers"]["logs"]["stream_id"],
         )
 
         # Инициализация канала для публикации логов
@@ -49,6 +53,24 @@ class Agent:
             config["aeron"]["subscribers"]["logs"]["stream_id"],
             config["aeron"]["subscribers"]["logs"]["fragments_limit"],
         )
+
+        # Инициализация канала для получения логов
+        self.logs_publisher = Publisher(
+            config["aeron"]["publishers"]["logs"]["channel"],
+            config["aeron"]["publishers"]["logs"]["stream_id"],
+        )
+
+    def config_handler(self, message: str) -> None:
+        """
+        Функция обратного вызова для приёма запросов на получение конфигурации из канала
+        Aeron
+        :param message: Сообщение, поступившее в канал
+        """
+        try:
+            if json.loads(message).get("action") == "get_config":
+                self.distribute_config()
+        except ValueError:
+            pass
 
     def logs_handler(self, message: str) -> None:
         """
@@ -68,6 +90,7 @@ class Agent:
         """
         Проверить наличие новых сообщений в каналах Aeron
         """
+        self.config_subscriber.poll()
         self.logs_subscriber.poll()
 
 
