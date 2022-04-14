@@ -47,6 +47,7 @@ pipenv run python main.py
 
 Конфигурация также может быть получена по запросу в формате JSON. Сообщение должно включать в себя ключ `action` со
 значением `"get_config"`:
+
 ```json
 {"action": "get_config"}
 ```
