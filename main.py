@@ -61,7 +61,7 @@ class Agent:
         """
         Получить и опубликовать новую конфигурацию
         """
-        content = self.session.get(self.endpoint).text
+        content = self.session.get(self.endpoint, params={"only_new": False}).text
         self.config_publisher.offer(content)
 
     def poll(self) -> None:
