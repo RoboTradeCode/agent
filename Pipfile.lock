@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bccdd958d1679358a5fdc7273eebcac00b26efd638accd0521cea77a58ee0ebb"
+            "sha256": "03aa401054453dc3cbf8791d55a4e1c6e3db1f68943031a492fa7315bd9b9184"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -15,7 +15,8 @@
     },
     "default": {
         "aeron": {
-            "git": "ssh://git@github.com/RoboTradeCode/aeron-python.git"
+            "git": "ssh://git@github.com/RoboTradeCode/aeron-python.git",
+            "ref": "v0.2.0"
         },
         "certifi": {
             "hashes": [

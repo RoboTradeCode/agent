@@ -3,14 +3,27 @@
 # agent
 
 [![Tests](https://github.com/RoboTradeCode/agent/actions/workflows/tests.yml/badge.svg)](https://github.com/RoboTradeCode/agent/actions/workflows/tests.yml)
-[![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue)](https://www.python.org/downloads/)
+[![Python](https://img.shields.io/badge/python-3.8-blue)](https://www.python.org/downloads/)
 [![CPython](https://img.shields.io/badge/implementation-cpython-blue)](https://github.com/python/cpython)
 [![Linux](https://img.shields.io/badge/platform-linux-lightgrey)](https://ru.wikipedia.org/wiki/Linux)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Торговый агент. Передаёт конфигурацию для работы гейтов и ядра. Занимается сбором и ретрансляцией логов.
 
-## Установка зависимостей
+## Установка
+
+### Предварительные требования
+
+Торговый агент использует в своей работе библиотеку [`aeron-python`](https://github.com/RoboTradeCode/aeron-python).
+Данная библиотека будет собрана в процессе установки, но для её сборки вам нужен CMake и JDK. Вы можете установить их,
+выполнив следующие команды:
+
+```shell
+sudo apt install snapd default-jdk -y
+sudo snap install cmake --classic
+```
+
+### Установка зависимостей
 
 ```shell
 pipenv install
