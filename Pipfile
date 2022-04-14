@@ -12,5 +12,5 @@ requests = "*"
 
 [requires]
 
-[packages.aeron]
-git = "https://github.com/RoboTradeCode/aeron-python.git"
+[packages.aeron-python]
+git = "ssh://git@github.com/RoboTradeCode/aeron-python.git"
